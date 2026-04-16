@@ -98,16 +98,29 @@ function App() {
   const isLevel = diff < 2.0;
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, textAlign: 'center' }}>
-      <Typography variant="h4" gutterBottom color="primary">
-        スマホ水平器
-      </Typography>
-      <Typography variant="body1" color="textSecondary">
-        現在のモード: <strong>{modeLabel}</strong>
-      </Typography>
+    <Container 
+      maxWidth="md" 
+      sx={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100dvh', // Viewport height including mobile safe areas
+        justifyContent: 'center',
+        alignItems: 'center',
+        p: { xs: 2, sm: 4 },
+        overflow: 'hidden' // Prevent scrolling
+      }}
+    >
+      <Box sx={{ textAlign: 'center', mb: { xs: 2, sm: 4 } }}>
+        <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+          スマホ水平器
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          現在のモード: <strong>{modeLabel}</strong>
+        </Typography>
+      </Box>
 
       {!permissionGranted ? (
-        <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: 4 }}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 4, textAlign: 'center' }}>
           <ExploreIcon sx={{ fontSize: 60, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" gutterBottom>
             センサーへのアクセスが必要です
@@ -117,16 +130,34 @@ function App() {
           </Button>
         </Paper>
       ) : (
-        <Box sx={{ mt: 5 }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            '@media (orientation: landscape)': { flexDirection: 'row' },
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: { xs: 3, sm: 6 },
+            width: '100%'
+          }}
+        >
+          {/* Main Bubble Target */}
           <Box
             sx={{
               position: 'relative',
-              width: { xs: 250, sm: 300 },
-              height: { xs: 250, sm: 300 },
+              width: { xs: '65vw', sm: 300 },
+              maxWidth: 300,
+              height: { xs: '65vw', sm: 300 },
+              maxHeight: 300,
+              '@media (orientation: landscape)': {
+                width: '55vh',
+                height: '55vh',
+                maxWidth: 250,
+                maxHeight: 250,
+              },
               borderRadius: '50%',
               border: '4px solid',
               borderColor: isLevel ? 'success.main' : 'divider',
-              margin: '0 auto',
               backgroundColor: isLevel ? 'success.light' : 'background.paper',
               transition: 'background-color 0.3s, border-color 0.3s',
               boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)',
@@ -136,14 +167,14 @@ function App() {
             {/* Crosshairs */}
             <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', bgcolor: 'rgba(0,0,0,0.2)' }} />
             <Box sx={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '1px', bgcolor: 'rgba(0,0,0,0.2)' }} />
-
+            
             {/* Center target circle */}
             <Box sx={{
               position: 'absolute',
               top: '50%',
               left: '50%',
-              width: '40px',
-              height: '40px',
+              width: '15%',
+              height: '15%',
               borderRadius: '50%',
               border: '2px solid rgba(0,0,0,0.3)',
               transform: 'translate(-50%, -50%)'
@@ -155,8 +186,8 @@ function App() {
                 position: 'absolute',
                 top: top,
                 left: left,
-                width: '50px',
-                height: '50px',
+                width: '20%',
+                height: '20%',
                 borderRadius: '50%',
                 backgroundColor: 'rgba(0, 150, 255, 0.6)',
                 border: '2px solid white',
@@ -167,14 +198,24 @@ function App() {
             />
           </Box>
 
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-around' }}>
-            <Box>
-              <Typography variant="caption" color="textSecondary">左右のズレ</Typography>
-              <Typography variant="h6">{Math.abs(devX).toFixed(1)}°</Typography>
+          {/* Readout Panels */}
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'row',
+            '@media (orientation: landscape)': { flexDirection: 'column' },
+            justifyContent: 'space-around',
+            textAlign: 'center',
+            width: { xs: '100%', sm: 'auto' },
+            gap: { xs: 0, sm: 3 },
+            minWidth: '120px'
+          }}>
+            <Box sx={{ '@media (orientation: landscape)': { mb: 2 } }}>
+              <Typography variant="caption" color="textSecondary" display="block">左右のズレ</Typography>
+              <Typography variant="h5" fontWeight="bold">{Math.abs(devX).toFixed(1)}°</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="textSecondary">前後のズレ</Typography>
-              <Typography variant="h6">{Math.abs(devY).toFixed(1)}°</Typography>
+              <Typography variant="caption" color="textSecondary" display="block">前後のズレ</Typography>
+              <Typography variant="h5" fontWeight="bold">{Math.abs(devY).toFixed(1)}°</Typography>
             </Box>
           </Box>
         </Box>
