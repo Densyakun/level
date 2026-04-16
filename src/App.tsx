@@ -43,12 +43,6 @@ function App() {
   // Max tilt to consider (degrees)
   const maxTilt = 45;
 
-  const clampAndMap = (value: number) => {
-    if (Number.isNaN(value)) return 0;
-    let clamped = Math.max(-maxTilt, Math.min(maxTilt, value));
-    return (clamped / maxTilt) * 50;
-  };
-
   const safeAsin = (val: number) => Math.asin(Math.max(-1, Math.min(1, val)));
 
   const degToRad = Math.PI / 180;
@@ -89,18 +83,35 @@ function App() {
     devY = -safeAsin(gz) * radToDeg * sign;
   }
 
-  // UI calculations: Bubble moves towards the higher side
-  const top = 50 + clampAndMap(devY) + '%';
-  const left = 50 - clampAndMap(devX) + '%';
+  // --- イージングと描画座標の計算 ---
 
-  // Calculate how close to level it is to change color
-  const diff = Math.sqrt(devX * devX + devY * devY);
-  const isLevel = diff < 2.0;
+  // 全体の傾き量（ベクトルの長さ）
+  const tiltMagnitude = Math.sqrt(devX * devX + devY * devY);
+  // 最大角でクランプし、0.0 〜 1.0 の割合に正規化
+  const normMag = Math.min(tiltMagnitude, maxTilt) / maxTilt;
+
+  // イージング適用 (Ease Out: 中心での変化を大きく、端に行くほど緩やかに)
+  // 指数を大きくするほど中心付近がセンシティブになります
+  const easedMag = tiltMagnitude === 0 ? 0 : (1 - Math.pow(1 - normMag, 2.5));
+
+  // 元のベクトル長に対して必要な乗算倍率を算出
+  const scale = tiltMagnitude === 0 ? 0 : (easedMag / (tiltMagnitude / maxTilt));
+
+  // 気泡の可動半径（コンテナのパーセンテージ）50%だと枠を超えるため少し小さく
+  // 気泡自体のサイズが20%なので、半径10%分を考慮して上限を40%にする
+  const maxRadius = 40;
+
+  // UI座標の計算 (XY成分の比率を維持したままスケーリング)
+  const top = 50 + ((devY / maxTilt) * scale) * maxRadius + '%';
+  const left = 50 - ((devX / maxTilt) * scale) * maxRadius + '%';
+
+  // 水平判定
+  const isLevel = tiltMagnitude < 2.0 || Number.isNaN(tiltMagnitude);
 
   return (
-    <Container 
-      maxWidth="md" 
-      sx={{ 
+    <Container
+      maxWidth="md"
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         height: '100dvh', // Viewport height including mobile safe areas
@@ -111,7 +122,7 @@ function App() {
       }}
     >
       <Box sx={{ textAlign: 'center', mb: { xs: 2, sm: 4 } }}>
-        <Typography variant="h5" gutterBottom color="primary" fontWeight="bold">
+        <Typography variant="h5" gutterBottom color="primary">
           スマホ水平器
         </Typography>
         <Typography variant="body2" color="textSecondary">
@@ -130,9 +141,9 @@ function App() {
           </Button>
         </Paper>
       ) : (
-        <Box 
-          sx={{ 
-            display: 'flex', 
+        <Box
+          sx={{
+            display: 'flex',
             flexDirection: 'column',
             '@media (orientation: landscape)': { flexDirection: 'row' },
             alignItems: 'center',
@@ -167,7 +178,7 @@ function App() {
             {/* Crosshairs */}
             <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '1px', bgcolor: 'rgba(0,0,0,0.2)' }} />
             <Box sx={{ position: 'absolute', top: 0, bottom: 0, left: '50%', width: '1px', bgcolor: 'rgba(0,0,0,0.2)' }} />
-            
+
             {/* Center target circle */}
             <Box sx={{
               position: 'absolute',
@@ -199,8 +210,8 @@ function App() {
           </Box>
 
           {/* Readout Panels */}
-          <Box sx={{ 
-            display: 'flex', 
+          <Box sx={{
+            display: 'flex',
             flexDirection: 'row',
             '@media (orientation: landscape)': { flexDirection: 'column' },
             justifyContent: 'space-around',
@@ -210,12 +221,12 @@ function App() {
             minWidth: '120px'
           }}>
             <Box sx={{ '@media (orientation: landscape)': { mb: 2 } }}>
-              <Typography variant="caption" color="textSecondary" display="block">左右のズレ</Typography>
-              <Typography variant="h5" fontWeight="bold">{Math.abs(devX).toFixed(1)}°</Typography>
+              <Typography variant="caption" color="textSecondary">左右のズレ</Typography>
+              <Typography variant="h5">{devX.toFixed(2)}°</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="textSecondary" display="block">前後のズレ</Typography>
-              <Typography variant="h5" fontWeight="bold">{Math.abs(devY).toFixed(1)}°</Typography>
+              <Typography variant="caption" color="textSecondary">前後のズレ</Typography>
+              <Typography variant="h5">{devY.toFixed(2)}°</Typography>
             </Box>
           </Box>
         </Box>
