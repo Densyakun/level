@@ -1,75 +1,67 @@
-# React + TypeScript + Vite
+# Smartphone Level (スマホ水平器)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+スマートフォンのジャイロセンサーを利用した、レスポンシブなブラウザベースの水平器アプリケーションです。
 
-Currently, two official plugins are available:
+## 概要
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+このアプリは、ReactとViteを使用して構築されており、スマートフォンの傾きをリアルタイムで検知して表示します。DIYや家具の設置、撮影時の水平確認など、日常の様々なシーンで活用できます。
 
-## React Compiler
+## 主な機能
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- **リアルタイム表示**: 端末の傾きを視覚的なバブル（気泡）と数値（度単位）でリアルタイムに表示。
+- **4つの測定モード**:
+    - **自動切り替え**: 端末の持ち方に合わせて、水平（平置き）・垂直（縦）・垂直（横）を自動判定。
+    - **水平 (平置き)**: デスクや床などに置いて使用するモード。
+    - **垂直 (縦置き)**: 壁などに背面を当て、縦向きに立てて使用するモード。
+    - **垂直 (横置き)**: 壁などに背面を当て、横向きに置いて使用するモード。
 
-Note: This will impact Vite dev & build performances.
+## 技術スタック
 
-## Expanding the ESLint configuration
+- **Frontend**: React 19, TypeScript
+- **UI Framework**: Material UI (MUI) 9
+- **Build Tool**: Vite 8
+- **Package Manager**: Bun (recommended) / npm / yarn
+- **Deployment**: GitHub Pages
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## セットアップ
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 必要条件
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- [Bun](https://bun.sh/) (または Node.js)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### インストール
+
+```bash
+# リポジトリのクローン
+git clone <repository-url>
+cd level
+
+# 依存関係のインストール
+bun install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 開発サーバーの起動
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun run dev
 ```
+
+### ビルド
+
+```bash
+bun run build
+```
+
+## デプロイ
+
+GitHub Pagesへのデプロイには以下のコマンドを使用します：
+
+```bash
+bun run deploy
+```
+
+## 注意事項
+
+- ブラウザのセキュリティ制限により、**HTTPS接続**が必須となります。
+- iOS端末では、初回起動時にモーションセンサーへのアクセス許可が必要です（「開始する」ボタンをクリックしてください）。
+- 端末のセンサー精度に依存するため、厳密な精度が求められる業務用には適さない場合があります。
