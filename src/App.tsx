@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Box, Button, Typography, Paper, Container } from '@mui/material';
+import { Box, Button, Typography, Paper, Container, FormControl, Select, MenuItem } from '@mui/material';
 import ExploreIcon from '@mui/icons-material/Explore';
 
 function App() {
   const [orientation, setOrientation] = useState({ beta: 0, gamma: 0, alpha: 0 });
   const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
+  const [modeSetting, setModeSetting] = useState<'auto' | 'horizontal' | 'portrait' | 'landscape'>('auto');
 
   const requestPermission = async () => {
     if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
@@ -60,24 +61,29 @@ function App() {
   const absY = Math.abs(gy);
   const absZ = Math.abs(gz);
 
-  let modeLabel = '水平 (平置き)';
+  let detectedMode: 'horizontal' | 'portrait' | 'landscape' = 'horizontal';
+  
+  if (absZ >= absX && absZ >= absY) {
+    detectedMode = 'horizontal';
+  } else if (absY >= absX && absY >= absZ) {
+    detectedMode = 'portrait';
+  } else {
+    detectedMode = 'landscape';
+  }
+
+  const activeMode = modeSetting === 'auto' ? detectedMode : modeSetting;
+
   let devX = 0;
   let devY = 0;
 
-  if (absZ >= absX && absZ >= absY) {
-    // 平置きモード：重力が主にZ軸方向
-    modeLabel = '水平 (平置き)';
+  if (activeMode === 'horizontal') {
     devX = safeAsin(gx) * radToDeg;
     devY = safeAsin(gy) * radToDeg;
-  } else if (absY >= absX && absY >= absZ) {
-    // 縦置きモード：重力が主にY軸方向
-    modeLabel = '垂直 (縦置き)';
+  } else if (activeMode === 'portrait') {
     const sign = -Math.sign(gy) || 1; // upright = 1, upside down = -1
     devX = -safeAsin(gx) * radToDeg * sign;
     devY = -safeAsin(gz) * radToDeg * sign;
   } else {
-    // 横置きモード：重力が主にX軸方向
-    modeLabel = '垂直 (横置き)';
     const sign = Math.sign(gx) || 1; // right-edge down = 1, left-edge down = -1
     devX = -safeAsin(gy) * radToDeg * sign;
     devY = -safeAsin(gz) * radToDeg * sign;
@@ -132,13 +138,25 @@ function App() {
         overflow: 'hidden' // Prevent scrolling
       }}
     >
-      <Box sx={{ textAlign: 'center', mb: { xs: 2, sm: 4 } }}>
-        <Typography variant="h5" gutterBottom color="primary">
+      <Box sx={{ textAlign: 'center', mb: { xs: 2, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <Typography variant="h5" color="primary">
           スマホ水平器
         </Typography>
-        <Typography variant="body2" color="textSecondary">
-          現在のモード: <strong>{modeLabel}</strong>
-        </Typography>
+        
+        {permissionGranted && (
+          <FormControl size="small" variant="outlined" sx={{ minWidth: 220 }}>
+            <Select
+              value={modeSetting}
+              onChange={(e) => setModeSetting(e.target.value as any)}
+              sx={{ bgcolor: 'background.paper', borderRadius: 2 }}
+            >
+              <MenuItem value="auto">自動切り替えモード</MenuItem>
+              <MenuItem value="horizontal">固定: 水平 (平置き)</MenuItem>
+              <MenuItem value="portrait">固定: 垂直 (縦置き)</MenuItem>
+              <MenuItem value="landscape">固定: 垂直 (横置き)</MenuItem>
+            </Select>
+          </FormControl>
+        )}
       </Box>
 
       {!permissionGranted ? (
