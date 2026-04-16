@@ -33,7 +33,7 @@
 
 ```bash
 # リポジトリのクローン
-git clone <repository-url>
+git clone https://github.com/Densyakun/level.git
 cd level
 
 # 依存関係のインストール
