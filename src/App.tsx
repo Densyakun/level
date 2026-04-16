@@ -43,18 +43,58 @@ function App() {
   // Max tilt to consider (degrees)
   const maxTilt = 45;
 
-  // Clamp and map degrees to percentage offset (-50% to 50%)
   const clampAndMap = (value: number) => {
+    if (Number.isNaN(value)) return 0;
     let clamped = Math.max(-maxTilt, Math.min(maxTilt, value));
     return (clamped / maxTilt) * 50;
   };
 
+  const safeAsin = (val: number) => Math.asin(Math.max(-1, Math.min(1, val)));
+
+  const degToRad = Math.PI / 180;
+  const radToDeg = 180 / Math.PI;
+
+  const b = orientation.beta * degToRad;
+  const c = orientation.gamma * degToRad;
+
+  // 重力ベクトルを計算 (X: スマホの右, Y: スマホの上, Z: スマホの画面の表側)
+  const gx = Math.cos(b) * Math.sin(c);
+  const gy = -Math.sin(b);
+  const gz = -Math.cos(b) * Math.cos(c);
+
+  const absX = Math.abs(gx);
+  const absY = Math.abs(gy);
+  const absZ = Math.abs(gz);
+
+  let modeLabel = '水平 (平置き)';
+  let devX = 0;
+  let devY = 0;
+
+  if (absZ >= absX && absZ >= absY) {
+    // 平置きモード：重力が主にZ軸方向
+    modeLabel = '水平 (平置き)';
+    devX = safeAsin(gx) * radToDeg;
+    devY = safeAsin(gy) * radToDeg;
+  } else if (absY >= absX && absY >= absZ) {
+    // 縦置きモード：重力が主にY軸方向
+    modeLabel = '垂直 (縦置き)';
+    const sign = -Math.sign(gy) || 1; // upright = 1, upside down = -1
+    devX = -safeAsin(gx) * radToDeg * sign;
+    devY = -safeAsin(gz) * radToDeg * sign;
+  } else {
+    // 横置きモード：重力が主にX軸方向
+    modeLabel = '垂直 (横置き)';
+    const sign = Math.sign(gx) || 1; // right-edge down = 1, left-edge down = -1
+    devX = -safeAsin(gy) * radToDeg * sign;
+    devY = -safeAsin(gz) * radToDeg * sign;
+  }
+
   // UI calculations: Bubble moves towards the higher side
-  const top = 50 + clampAndMap(orientation.beta) + '%';
-  const left = 50 - clampAndMap(orientation.gamma) + '%';
+  const top = 50 + clampAndMap(devY) + '%';
+  const left = 50 - clampAndMap(devX) + '%';
 
   // Calculate how close to level it is to change color
-  const diff = Math.sqrt(orientation.beta * orientation.beta + orientation.gamma * orientation.gamma);
+  const diff = Math.sqrt(devX * devX + devY * devY);
   const isLevel = diff < 2.0;
 
   return (
@@ -63,7 +103,7 @@ function App() {
         スマホ水平器
       </Typography>
       <Typography variant="body1" color="textSecondary">
-        スマホを平らな場所に置いてみましょう。
+        現在のモード: <strong>{modeLabel}</strong>
       </Typography>
 
       {!permissionGranted ? (
@@ -129,12 +169,12 @@ function App() {
 
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-around' }}>
             <Box>
-              <Typography variant="caption" color="textSecondary">X (Gamma)</Typography>
-              <Typography variant="h6">{orientation.gamma.toFixed(1)}°</Typography>
+              <Typography variant="caption" color="textSecondary">左右のズレ</Typography>
+              <Typography variant="h6">{Math.abs(devX).toFixed(1)}°</Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="textSecondary">Y (Beta)</Typography>
-              <Typography variant="h6">{orientation.beta.toFixed(1)}°</Typography>
+              <Typography variant="caption" color="textSecondary">前後のズレ</Typography>
+              <Typography variant="h6">{Math.abs(devY).toFixed(1)}°</Typography>
             </Box>
           </Box>
         </Box>
