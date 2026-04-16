@@ -68,7 +68,7 @@ function App() {
   const absZ = Math.abs(gz);
 
   let detectedMode: 'horizontal' | 'portrait' | 'landscape' = 'horizontal';
-  
+
   if (absZ >= absX && absZ >= absY) {
     detectedMode = 'horizontal';
   } else if (absY >= absX && absY >= absZ) {
@@ -140,22 +140,33 @@ function App() {
         height: '100dvh', // Viewport height including mobile safe areas
         justifyContent: 'center',
         alignItems: 'center',
-        p: { xs: 2, sm: 4 },
+        p: { xs: 1, sm: 4 }, // スマホではパディングを減らす
         overflow: 'hidden' // Prevent scrolling
       }}
     >
-      <Box sx={{ textAlign: 'center', mb: { xs: 2, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <Typography variant="h5" color="primary">
+      <Box sx={{ textAlign: 'center', mb: { xs: 1, sm: 4 }, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { xs: 1, sm: 2 } }}>
+        <Typography
+          variant="h5"
+          color="primary"
+          sx={{
+            fontSize: { xs: '1.2rem', sm: '1.5rem' },
+            fontWeight: 'bold',
+            // 縦幅が380px以下の場合は非表示にする
+            '@media (max-height: 380px)': {
+              display: 'none'
+            }
+          }}
+        >
           スマホ水平器
         </Typography>
-        
+
         {permissionGranted && (
-          <FormControl size="small" variant="outlined" sx={{ minWidth: 220 }}>
+          <FormControl size="small" variant="outlined" sx={{ minWidth: { xs: 180, sm: 220 } }}>
             <Select
               value={modeSetting}
               onChange={(e) => setModeSetting(e.target.value as any)}
-              sx={{ 
-                bgcolor: 'background.paper', 
+              sx={{
+                bgcolor: 'background.paper',
                 borderRadius: 2,
                 '& .MuiSelect-select': {
                   display: 'flex',
@@ -190,7 +201,7 @@ function App() {
             '@media (orientation: landscape)': { flexDirection: 'row' },
             alignItems: 'center',
             justifyContent: 'center',
-            gap: { xs: 3, sm: 6 },
+            gap: { xs: 2, sm: 6 }, // 隙間を詰める
             width: '100%'
           }}
         >
@@ -198,15 +209,17 @@ function App() {
           <Box
             sx={{
               position: 'relative',
-              width: { xs: '65vw', sm: 300 },
+              // 幅を基準にし、高さは aspectRatio で強制的に正方形にする
+              width: {
+                xs: 'min(75vw, 45vh)', // 縦横どちらかの短い方の 75%/45% に収める
+                sm: 300
+              },
+              aspectRatio: '1 / 1',
               maxWidth: 300,
-              height: { xs: '65vw', sm: 300 },
               maxHeight: 300,
               '@media (orientation: landscape)': {
-                width: '55vh',
-                height: '55vh',
+                width: 'min(50vw, 55vh)',
                 maxWidth: 250,
-                maxHeight: 250,
               },
               borderRadius: '50%',
               border: '4px solid',
@@ -215,6 +228,9 @@ function App() {
               transition: 'background-color 0.3s, border-color 0.3s',
               boxShadow: 'inset 0 0 20px rgba(0,0,0,0.1)',
               overflow: 'hidden',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
           >
             {/* Crosshairs */}
@@ -258,7 +274,6 @@ function App() {
             '@media (orientation: landscape)': { flexDirection: 'column' },
             justifyContent: 'space-around',
             textAlign: 'center',
-            width: { xs: '100%', sm: 'auto' },
             gap: { xs: 0, sm: 3 },
             minWidth: '120px'
           }}>
@@ -266,7 +281,7 @@ function App() {
               <Typography variant="caption" color="textSecondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0.5 }}>
                 <SwapHorizIcon sx={{ fontSize: 16, mr: 0.5 }} /> 左右のズレ
               </Typography>
-              <Typography variant="h5" sx={{ fontFamily: 'monospace', minWidth: '94px', display: 'inline-block', textAlign: 'right' }}>
+              <Typography variant="h5" sx={{ fontFamily: 'monospace', minWidth: '94px', display: 'inline-block', textAlign: 'right', whiteSpace: 'nowrap' }}>
                 {formatAngle(devX)}°
               </Typography>
             </Box>
@@ -274,7 +289,7 @@ function App() {
               <Typography variant="caption" color="textSecondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0.5 }}>
                 <SwapVertIcon sx={{ fontSize: 16, mr: 0.5 }} /> 前後のズレ
               </Typography>
-              <Typography variant="h5" sx={{ fontFamily: 'monospace', minWidth: '94px', display: 'inline-block', textAlign: 'right' }}>
+              <Typography variant="h5" sx={{ fontFamily: 'monospace', minWidth: '94px', display: 'inline-block', textAlign: 'right', whiteSpace: 'nowrap' }}>
                 {formatAngle(devY)}°
               </Typography>
             </Box>
