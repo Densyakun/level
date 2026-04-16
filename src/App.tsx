@@ -108,6 +108,17 @@ function App() {
   // 水平判定
   const isLevel = tiltMagnitude < 2.0 || Number.isNaN(tiltMagnitude);
 
+  // 桁数を合わせて（-10.00 や - 1.00、  1.00のように）表示するヘルパー
+  const formatAngle = (val: number) => {
+    // 浮動小数点誤差による -0.00 を防ぐため、一旦toFixedしてからパース
+    const fixedNum = Number(val.toFixed(2));
+    const isNegative = fixedNum < 0 || Object.is(fixedNum, -0);
+    const absStr = Math.abs(fixedNum).toFixed(2);
+    const paddedStr = absStr.length < 5 ? '\u00A0' + absStr : absStr;
+    const sign = isNegative ? '-' : '\u00A0';
+    return sign + paddedStr;
+  };
+
   return (
     <Container
       maxWidth="md"
@@ -222,11 +233,15 @@ function App() {
           }}>
             <Box sx={{ '@media (orientation: landscape)': { mb: 2 } }}>
               <Typography variant="caption" color="textSecondary">左右のズレ</Typography>
-              <Typography variant="h5">{devX.toFixed(2)}°</Typography>
+              <Typography variant="h5" sx={{ fontFamily: 'monospace' }}>
+                {formatAngle(devX)}°
+              </Typography>
             </Box>
             <Box>
               <Typography variant="caption" color="textSecondary">前後のズレ</Typography>
-              <Typography variant="h5">{devY.toFixed(2)}°</Typography>
+              <Typography variant="h5" sx={{ fontFamily: 'monospace' }}>
+                {formatAngle(devY)}°
+              </Typography>
             </Box>
           </Box>
         </Box>
