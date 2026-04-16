@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Box, Button, Typography, Paper, Container, FormControl, Select, MenuItem } from '@mui/material';
 import ExploreIcon from '@mui/icons-material/Explore';
+import AutoModeIcon from '@mui/icons-material/AutoMode';
+import StayCurrentPortraitIcon from '@mui/icons-material/StayCurrentPortrait';
+import StayCurrentLandscapeIcon from '@mui/icons-material/StayCurrentLandscape';
+import ViewInArIcon from '@mui/icons-material/ViewInAr';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 
 function App() {
   const [orientation, setOrientation] = useState({ beta: 0, gamma: 0, alpha: 0 });
@@ -148,12 +154,19 @@ function App() {
             <Select
               value={modeSetting}
               onChange={(e) => setModeSetting(e.target.value as any)}
-              sx={{ bgcolor: 'background.paper', borderRadius: 2 }}
+              sx={{ 
+                bgcolor: 'background.paper', 
+                borderRadius: 2,
+                '& .MuiSelect-select': {
+                  display: 'flex',
+                  alignItems: 'center',
+                }
+              }}
             >
-              <MenuItem value="auto">自動切り替えモード</MenuItem>
-              <MenuItem value="horizontal">固定: 水平 (平置き)</MenuItem>
-              <MenuItem value="portrait">固定: 垂直 (縦置き)</MenuItem>
-              <MenuItem value="landscape">固定: 垂直 (横置き)</MenuItem>
+              <MenuItem value="auto" sx={{ display: 'flex', alignItems: 'center' }}><AutoModeIcon sx={{ mr: 1, fontSize: 20 }} /> 自動切り替えモード</MenuItem>
+              <MenuItem value="horizontal" sx={{ display: 'flex', alignItems: 'center' }}><ViewInArIcon sx={{ mr: 1, fontSize: 20 }} /> 固定: 水平 (平置き)</MenuItem>
+              <MenuItem value="portrait" sx={{ display: 'flex', alignItems: 'center' }}><StayCurrentPortraitIcon sx={{ mr: 1, fontSize: 20 }} /> 固定: 垂直 (縦置き)</MenuItem>
+              <MenuItem value="landscape" sx={{ display: 'flex', alignItems: 'center' }}><StayCurrentLandscapeIcon sx={{ mr: 1, fontSize: 20 }} /> 固定: 垂直 (横置き)</MenuItem>
             </Select>
           </FormControl>
         )}
@@ -250,14 +263,18 @@ function App() {
             minWidth: '120px'
           }}>
             <Box sx={{ '@media (orientation: landscape)': { mb: 2 } }}>
-              <Typography variant="caption" color="textSecondary">左右のズレ</Typography>
-              <Typography variant="h5" sx={{ fontFamily: 'monospace' }}>
+              <Typography variant="caption" color="textSecondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0.5 }}>
+                <SwapHorizIcon sx={{ fontSize: 16, mr: 0.5 }} /> 左右のズレ
+              </Typography>
+              <Typography variant="h5" sx={{ fontFamily: 'monospace', minWidth: '94px', display: 'inline-block', textAlign: 'right' }}>
                 {formatAngle(devX)}°
               </Typography>
             </Box>
             <Box>
-              <Typography variant="caption" color="textSecondary">前後のズレ</Typography>
-              <Typography variant="h5" sx={{ fontFamily: 'monospace' }}>
+              <Typography variant="caption" color="textSecondary" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0.5 }}>
+                <SwapVertIcon sx={{ fontSize: 16, mr: 0.5 }} /> 前後のズレ
+              </Typography>
+              <Typography variant="h5" sx={{ fontFamily: 'monospace', minWidth: '94px', display: 'inline-block', textAlign: 'right' }}>
                 {formatAngle(devY)}°
               </Typography>
             </Box>
